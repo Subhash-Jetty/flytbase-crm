@@ -14,7 +14,7 @@ export interface Fact {
   said_by: string;
   status: "told" | "verified" | "claim";
   verified_by?: string;
-  learned_at_minute: number;
+  learned_at_minute?: number;
 }
 
 export interface Blocker {
@@ -28,6 +28,7 @@ export interface Deadline {
   passed: boolean;
   met: boolean;
   moves_left: number | null;
+  minutes_left?: number | null;
 }
 
 export interface Opportunity {
@@ -52,6 +53,7 @@ export interface Offer {
 export interface AccountDeadline {
   text: string;
   passed: boolean;
+  minutes_left?: number | null;
 }
 
 export interface Account {

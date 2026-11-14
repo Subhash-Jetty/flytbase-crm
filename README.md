@@ -1,6 +1,6 @@
 # FlytBase CRM — Account Quest Dashboard
 
-A live CRM dashboard for managing two FlytBase accounts: **Eastern Counties Police Alliance** and **Aldermoor Industrial Group**. Built for the FlytBase Questathon.
+A live CRM dashboard for the FlytBase Questathon, currently covering **Eastern Counties Police Alliance**, **Aldermoor Industrial Group**, and the released **Kestrel Estates** account.
 
 ## What it does
 
@@ -14,7 +14,13 @@ For each account, the CRM answers five questions a manager needs on Monday:
 
 ## Live data
 
-The dashboard reads live from the Questathon MCP API. Signals (live events) auto-refresh every 2 minutes. Notes can be written back through the UI.
+The dashboard reads the account export, released accounts, live signals and current MCP state. It spaces reads at least 65 seconds apart to respect the one-call-per-minute limit, and keeps a saved account snapshot available if MCP is unavailable. Account exports, signals, release checks and new-account reads are staggered; with all sources active, each is checked roughly every 4 minutes and 20 seconds. The manual Refresh button requests the account export.
+
+**Value rule:** active potential is the sum of `worth_up_to` for priced opportunities, excluding deals marked `out_of_reach` or `agreed`. Agreed deal value is shown separately; unpriced opportunities are omitted. The dashboard recalculates from the latest account export, so stage or value updates from the game can change the total. These are opportunity ceilings, not booked revenue or the leaderboard score. When MCP is unavailable, the page labels the saved snapshot and its export time.
+
+A newly released account is discovered from `whoami` when release identifiers are present and fetched with `get_new_account`. Kestrel Estates is also included as a labeled snapshot so the current released account stays visible while a live call is pending. New accounts returned inside `get_my_accounts` are merged automatically. Scenario-specific recommendations are curated for the three known accounts; other accounts get conservative blocker-based prompts and explicit unknowns.
+
+This build does not yet persist account exports in a durable CRM database or hydrate every linked document with `get_all_paperwork` / `get_file`; the fallback is the checked-in scenario snapshot plus short-lived cache.
 
 ## How to run locally
 
@@ -56,7 +62,9 @@ Browser  →  Next.js API Routes  →  MCP Server
                 (token stays server-side)
 ```
 
-The MCP token is stored as a server-side environment variable (`AQ_TOKEN`). It never reaches the browser. API routes proxy all MCP calls.
+The MCP token is stored as a server-side environment variable (`AQ_TOKEN`). It never reaches the browser. API routes proxy MCP calls, use Next's short remote cache for reads, and keep a local per-instance cooldown. The cache reduces duplicate reads across supported server instances; it is not a distributed lock, so independent cold starts can still race the upstream rate limit. When that happens, the UI keeps the last good data or shows the saved snapshot.
+
+Note writes are validated and restricted to same-origin browser requests, but the public write route does not authenticate individual users. Add an authenticated write gate before exposing note-writing access to untrusted visitors.
 
 ## Data sources
 

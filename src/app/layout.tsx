@@ -3,13 +3,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "FlytBase CRM — Account Quest",
-  description: "Live CRM dashboard for Eastern Counties Police Alliance & Aldermoor Industrial Group",
+  description: "Live account operations CRM for the FlytBase Questathon",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-gray-950 text-gray-100 min-h-screen antialiased">
+      <body className="min-h-screen antialiased">
         {children}
       </body>
     </html>

@@ -9,7 +9,9 @@ node_modules/
 
 # next
 .next/
+.next-codex-build/
 out/
+*.tsbuildinfo
 
 # misc
 *.log
